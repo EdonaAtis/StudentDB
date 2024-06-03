@@ -1,0 +1,37 @@
+body {
+    background-color: #E0F7FA;
+    font-family: 'Open Sans', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.form-control {
+    width: calc(100% - 16px);
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.btn-primary {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 1em;
+    color: white;
+    background-color: #2877e9;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    width: 100%;
+}
+
+    .btn-primary:hover {
+        background-color: #1c5bb8;
+    }
+
+.alert {
+    color: #e52e50;
+    font-size: 1.2em;
+}

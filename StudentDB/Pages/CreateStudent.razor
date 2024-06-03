@@ -1,0 +1,47 @@
+﻿@page "/createstudent"
+@using Student.DataModels.Models
+@using Microsoft.EntityFrameworkCore
+
+@inject ApplicationDbContext DbContext
+@inject NavigationManager navManager
+
+<h3>Create Student</h3>
+
+<EditForm Model="student" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>First Name:</label>
+        <InputText @bind-Value="student.FirstName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Last Name:</label>
+        <InputText @bind-Value="student.LastName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Email:</label>
+        <InputText @bind-Value="student.EmailAddress" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Phone Number:</label>
+        <InputText @bind-Value="student.PhoneNumber" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Field Of Study:</label>
+        <InputText @bind-Value="student.FieldOfStudy" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn-primary">Save</button>
+</EditForm>
+
+@code {
+    private StudentInfo student = new StudentInfo();
+
+    private async Task HandleValidSubmit()
+    {
+        DbContext.StudentInfo.Add(student);
+        await DbContext.SaveChangesAsync();
+        navManager.NavigateTo("/students");
+    }
+}

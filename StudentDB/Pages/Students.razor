@@ -1,0 +1,135 @@
+﻿@page "/students"
+@using Student.DataModels.Models
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+@inject NavigationManager NavManager
+
+<div>
+    <input type="text" @bind="searchText" placeholder="Search..." class="form-control" />
+</div>
+<div style="margin-top: 10px;">
+    <button class="btn-primary" @onclick="Search">Search</button>
+</div>
+<div style="margin-top: 10px;">
+    <button class="btn-primary" @onclick="Reset">Reset</button>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Field Of Study</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (filteredStudents != null)
+        {
+            @foreach (var student in filteredStudents)
+            {
+                <tr>
+                    <td>@student.Id</td>
+                    <td>@student.FirstName</td>
+                    <td>@student.LastName</td>
+                    <td>@student.EmailAddress</td>
+                    <td>@student.PhoneNumber</td>
+                    <td>@student.FieldOfStudy</td>
+                    <td>
+                        <a href="/editstudent/@student.Id">Edit</a> |
+                        <button class="btn btn-danger" @onclick="() => ConfirmDeleteStudent(student.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<button class="btn-primary" @onclick="GoToCreateStudentPage">Add Student</button>
+
+@if (showDeleteConfirmation)
+{
+    <div class="modal show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="close" @onclick="CancelDelete" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this student?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="() => DeleteStudent(confirmedStudentId)">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<StudentInfo> ?StudentInfo;
+    private List<StudentInfo> ?filteredStudents;
+    private string? searchText;
+    private bool showDeleteConfirmation = false;
+    private int confirmedStudentId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        StudentInfo = await DbContext.StudentInfo.ToListAsync();
+        filteredStudents = new List<StudentInfo>(StudentInfo);
+    }
+
+    private void Search()
+    {
+        filteredStudents = StudentInfo.Where(s =>
+            s.FirstName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+            s.LastName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+            s.EmailAddress.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+            s.PhoneNumber.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+            s.FieldOfStudy.Contains(searchText, StringComparison.OrdinalIgnoreCase)
+        ).ToList();
+    }
+
+    private void Reset()
+    {
+        searchText = string.Empty;
+        filteredStudents = new List<StudentInfo>(StudentInfo);
+    }
+
+    private void GoToCreateStudentPage()
+    {
+        NavManager.NavigateTo("/createstudent");
+    }
+
+    private void ConfirmDeleteStudent(int id)
+    {
+        confirmedStudentId = id;
+        showDeleteConfirmation = true;
+    }
+
+    private void CancelDelete()
+    {
+        confirmedStudentId = 0;
+        showDeleteConfirmation = false;
+    }
+
+    private async Task DeleteStudent(int id)
+    {
+        showDeleteConfirmation = false;
+        var student = await DbContext.StudentInfo.FindAsync(id);
+        if (student != null)
+        {
+            DbContext.StudentInfo.Remove(student);
+            await DbContext.SaveChangesAsync();
+            StudentInfo = await DbContext.StudentInfo.ToListAsync();
+            filteredStudents = new List<StudentInfo>(StudentInfo);
+        }
+    }
+}

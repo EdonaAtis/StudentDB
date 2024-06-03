@@ -1,0 +1,167 @@
+﻿@page "/login"
+
+@inject HttpClient HttpClient
+@inject INotify notify
+@using Blazored.SessionStorage
+@using SessionStorageService = Blazored.SessionStorage.ISessionStorageService
+@inject SessionStorageService sessionStorage
+@using Student.DataModels.CustomModels
+@using StudentDB.Services
+@using System.Text.Json
+@using System.Text
+@using System.Net.Http
+@using System.Net.Http.Json
+@inject IAdminPanelService adminPanelService
+@inject NavigationManager navManager
+@inject ProtectedSessionStorage sessionStorage
+
+<style>
+    body {
+        background-color: #E0F7FA; /* Baby blue background */
+        font-family: 'Open Sans', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .loginBox {
+        margin: 50px auto;
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+    }
+
+    .box {
+        background: white;
+        width: 100%;
+        max-width: 400px;
+        border-radius: 6px;
+        padding: 20px;
+        border: #2877e9 4px solid;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+        .box h1 {
+            font-size: 1.8em;
+            color: #525252;
+            margin-bottom: 20px;
+        }
+
+        .box p {
+            font-size: 14px;
+            color: #525252;
+        }
+
+    .email, .password {
+        width: calc(100% - 16px);
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1em;
+    }
+
+    .btn-primary {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 1em;
+        color: white;
+        background-color: #2877e9;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-align: center;
+        width: 100%;
+    }
+
+        .btn-primary:hover {
+            background-color: #1c5bb8;
+        }
+
+    .alert {
+        color: #e52e50;
+        font-size: 1.2em;
+    }
+</style>
+
+<div class="loginBox">
+    <div class="box">
+        <h1>Admin Panel</h1>
+        @if (loginModel != null)
+        {
+            <EditForm Model="@loginModel" OnValidSubmit="Login_Click">
+                <DataAnnotationsValidator />
+                <InputText type="email" name="email" class="email" placeholder="email" @bind-Value="loginModel.EmailId" autocomplete="off"></InputText>
+                <ValidationMessage For="@(() => loginModel.EmailId)" />
+                <InputText type="password" name="password" class="password" placeholder="password" @bind-Value="loginModel.Password" />
+                <ValidationMessage For="@(() => loginModel.Password)" />
+                <input type="submit" class="btn-primary" value="Login" />
+            </EditForm>
+        }
+    </div>
+    <div class="alert">
+        <h4>@alertMessage</h4>
+    </div>
+    <p>Don't have an account? <a href="/register">Register here</a></p>
+</div>
+
+@code {
+    [CascadingParameter]
+    public LoginModel? loginModel { get; set; }
+    public string? alertMessage { get; set; }
+    private string? successMessage;
+
+    protected override Task OnInitializedAsync()
+    {
+        loginModel = new LoginModel();
+        return base.OnInitializedAsync();
+    }
+
+    private async Task Login_Click()
+    {
+        try
+        {
+            if (loginModel == null || string.IsNullOrEmpty(loginModel.EmailId) || string.IsNullOrEmpty(loginModel.Password))
+            {
+                alertMessage = "Please provide both email and password.";
+                return;
+            }
+
+            var response = await adminPanelService.AdminLogin(loginModel);
+
+            if (response.Status)
+            {
+                if (!string.IsNullOrEmpty(response.Message))
+                {
+                    var userResponse = response.Message.Split("|");
+                    if (userResponse.Length == 3)
+                    {
+                        await sessionStorage.SetAsync("adminName", userResponse[1]);
+                        await sessionStorage.SetAsync("adminEmail", userResponse[2]);
+                        successMessage = "Login successful!";
+                        await InvokeAsync(() => navManager.NavigateTo("/students"));
+                    }
+                    else
+                    {
+                        alertMessage = "Invalid response format.";
+                        Console.WriteLine($"Invalid response format: {response.Message}");
+                    }
+                }
+                else
+                {
+                    alertMessage = "Login response is empty.";
+                    Console.WriteLine("Login response is empty.");
+                }
+            }
+            else
+            {
+                alertMessage = response.Message;
+                Console.WriteLine($"Login failed: {response.Message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception during login: {ex.Message}");
+            alertMessage = "An unexpected error occurred during login.";
+        }
+    }
+}

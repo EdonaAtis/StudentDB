@@ -1,0 +1,93 @@
+﻿@page "/editstudent/{id:int}"
+@using Student.DataModels.Models
+@using Microsoft.EntityFrameworkCore
+
+@inject ApplicationDbContext DbContext
+@inject NavigationManager navManager
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private StudentInfo? student;
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            student = await DbContext.StudentInfo.FindAsync(id);
+            if (student == null)
+            {
+                errorMessage = "Student not found.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading student: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            await DbContext.SaveChangesAsync();
+            navManager.NavigateTo("/students");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error saving changes: {ex.Message}";
+        }
+    }
+}
+
+<h3>Edit Student</h3>
+
+@if (isLoading)
+{
+    <p>Loading...</p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p class="text-danger">@errorMessage</p>
+}
+else if (student != null)
+{
+    <EditForm Model="student" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label>First Name:</label>
+            <InputText @bind-Value="student.FirstName" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>Last Name:</label>
+            <InputText @bind-Value="student.LastName" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>Email:</label>
+            <InputText @bind-Value="student.EmailAddress" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>Phone Number:</label>
+            <InputText @bind-Value="student.PhoneNumber" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label>Field Of Study:</label>
+            <InputText @bind-Value="student.FieldOfStudy" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+    </EditForm>
+}
+else
+{
+    <p class="text-danger">Student not found.</p>
+}

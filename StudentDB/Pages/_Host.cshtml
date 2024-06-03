@@ -1,0 +1,17 @@
+﻿@page "/"
+@namespace StudentDB.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = "_Layout";
+}
+
+<component type="typeof(App)" render-mode="ServerPrerendered" />
+
+<script>
+    window.addEventListener('beforeunload', function (e) {
+        // Cancel the event
+        e.preventDefault();
+        // Chrome requires returnValue to be set
+        e.returnValue = '';
+    });
+</script>
