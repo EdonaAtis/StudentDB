@@ -1,8 +1,8 @@
-﻿using Student.DataModels.Models;
+﻿using Student.DataModels;
 
 namespace StudentDB.Services
 {
-	public class StudentService
+    public class StudentService
 	{
 		private readonly ApplicationDbContext _applicationDbContext;
 		public StudentService(ApplicationDbContext applicationDbContext)

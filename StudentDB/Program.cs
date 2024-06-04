@@ -7,7 +7,8 @@ using Microsoft.Extensions.Hosting;
 using System;
 using Blazored.SessionStorage;
 using Microsoft.EntityFrameworkCore;
-using Student.DataModels.Models;
+using StudentDB.Services.Interfaces;
+using Student.DataModels;
 
 internal class Program
 {

@@ -1,9 +1,11 @@
 ﻿using Blazored.SessionStorage;
+using StudentDB.Services.Interfaces;
 using System.Threading.Tasks;
+using ISessionStorageService = StudentDB.Services.Interfaces.ISessionStorageService;
 
 namespace StudentDB.Services
 {
-	public class SessionStorageService : ISessionStorageService
+    public class SessionStorageService : ISessionStorageService
 	{
 		private readonly ISessionStorageService _sessionStorageService;
 

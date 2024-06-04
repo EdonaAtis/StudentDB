@@ -1,6 +1,6 @@
 ﻿using Student.DataModels.CustomModels;
 
-namespace StudentDB.Services
+namespace StudentDB.Services.Interfaces
 {
     public interface IAdminPanelService
     {

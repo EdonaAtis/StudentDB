@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Student.DataModels;
 using Student.DataModels.CustomModels;
 using Student.DataModels.Models;
 using System.Linq;
@@ -10,9 +11,9 @@ namespace Student.Api.Controllers
     [Route("api/admin")]
     public class AdminController : ControllerBase
     {
-        private readonly DataModels.Models.ApplicationDbContext _dbcontext;
+        private readonly ApplicationDbContext _dbcontext;
 
-        public AdminController(DataModels.Models.ApplicationDbContext dbcontext)
+        public AdminController(ApplicationDbContext dbcontext)
         {
             _dbcontext = dbcontext;
         }

@@ -1,7 +1,8 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
+using Student.DataModels.Models;
 
-namespace Student.DataModels.Models
+namespace Student.DataModels
 {
     public partial class ApplicationDbContext : DbContext
     {

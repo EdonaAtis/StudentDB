@@ -1,5 +1,5 @@
-﻿using Student.DataModels.CustomModels;
-using Student.DataModels.Models;
+﻿using Student.DataModels;
+using Student.DataModels.CustomModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Student.Logic.Services
 {
-	public class AdminService : IAdminService
+    public class AdminService : IAdminService
 	{
 
 		private readonly ApplicationDbContext _dbcontext;

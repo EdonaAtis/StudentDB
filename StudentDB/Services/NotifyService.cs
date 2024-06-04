@@ -1,9 +1,10 @@
 ﻿namespace StudentDB.Services
 {
-	using Microsoft.AspNetCore.Components;
-	using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Components;
+    using StudentDB.Services.Interfaces;
+    using System.Threading.Tasks;
 
-	public class NotifyService : INotify
+    public class NotifyService : INotify
 	{
 		private readonly NavigationManager _navigationManager;
 
