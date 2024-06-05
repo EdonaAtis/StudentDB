@@ -46,9 +46,5 @@ namespace Student.DataModels
 
             base.OnModelCreating(modelBuilder);
         }
-
     }
 }
-
-
-

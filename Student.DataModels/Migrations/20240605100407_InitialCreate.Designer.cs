@@ -4,40 +4,42 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Student.DataModels;
 
 #nullable disable
 
 namespace Student.DataModels.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240601140323_StudentInfoTable")]
-    partial class StudentInfoTable
+    [Migration("20240605100407_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.0")
+                .HasAnnotation("ProductVersion", "8.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Student.DataModels.Models.AdminInfo", b =>
                 {
-                    b.Property<string>("CreatedOn")
-                        .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedOn")
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("LastLogin")
                         .HasMaxLength(25)
@@ -48,12 +50,15 @@ namespace Student.DataModels.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Password")
+                        .IsRequired()
                         .HasMaxLength(6)
                         .HasColumnType("nvarchar(6)");
 
                     b.Property<string>("UpdatedOn")
                         .HasMaxLength(25)
                         .HasColumnType("nvarchar(25)");
+
+                    b.HasKey("Id");
 
                     b.ToTable("AdminInfo", (string)null);
                 });
@@ -88,7 +93,7 @@ namespace Student.DataModels.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Students");
+                    b.ToTable("StudentInfo");
 
                     b.HasData(
                         new

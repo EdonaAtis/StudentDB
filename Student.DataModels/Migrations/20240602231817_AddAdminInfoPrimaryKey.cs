@@ -10,14 +10,6 @@ namespace Student.DataModels.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_Students",
-                table: "Students");
-
-            migrationBuilder.RenameTable(
-                name: "Students",
-                newName: "StudentInfo");
-
             migrationBuilder.AlterColumn<string>(
                 name: "Password",
                 table: "AdminInfo",
@@ -46,11 +38,6 @@ namespace Student.DataModels.Migrations
                 name: "PK_AdminInfo",
                 table: "AdminInfo",
                 column: "Id");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_StudentInfo",
-                table: "StudentInfo",
-                column: "Id");
         }
 
         /// <inheritdoc />
@@ -59,14 +46,6 @@ namespace Student.DataModels.Migrations
             migrationBuilder.DropPrimaryKey(
                 name: "PK_AdminInfo",
                 table: "AdminInfo");
-
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_StudentInfo",
-                table: "StudentInfo");
-
-            migrationBuilder.RenameTable(
-                name: "StudentInfo",
-                newName: "Students");
 
             migrationBuilder.AlterColumn<string>(
                 name: "Password",
@@ -87,11 +66,6 @@ namespace Student.DataModels.Migrations
                 oldClrType: typeof(string),
                 oldType: "nvarchar(30)",
                 oldMaxLength: 30);
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_Students",
-                table: "Students",
-                column: "Id");
         }
     }
 }
