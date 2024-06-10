@@ -21,6 +21,7 @@ namespace Student.DataModels
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
+
             {
                 optionsBuilder.UseSqlServer("Server=DESKTOP-D3DKJG2;Database=Students;Integrated Security=True;Encrypt=False;MultipleActiveResultSets=true;TrustServerCertificate=True");
             }

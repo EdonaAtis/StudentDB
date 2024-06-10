@@ -1,4 +1,5 @@
 ﻿@page "/createstudent"
+@layout MainLayout
 @using Student.DataModels
 @using Student.DataModels.Models
 @using Microsoft.EntityFrameworkCore
@@ -30,7 +31,13 @@
     </div>
     <div class="form-group">
         <label>Field Of Study:</label>
-        <InputText @bind-Value="student.FieldOfStudy" class="form-control" />
+        <InputSelect @bind-Value="student.FieldOfStudy" class="form-control">
+            <option value="">Select Field of Study</option>
+            @foreach (var field in fieldsOfStudy)
+            {
+                <option value="@field">@field</option>
+            }
+        </InputSelect>
     </div>
 
     <button type="submit" class="btn-primary">Save</button>
@@ -38,6 +45,18 @@
 
 @code {
     private StudentInfo student = new StudentInfo();
+    private List<string> fieldsOfStudy = new List<string>
+    {
+        "Computer Science",
+        "Mathematics",
+        "Physics",
+        "Chemistry",
+        "Biology",
+        "Engineering",
+        "Literature",
+        "History",
+        "IT"
+    };
 
     private async Task HandleValidSubmit()
     {

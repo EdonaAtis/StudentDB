@@ -1,4 +1,5 @@
 ﻿@page "/students"
+@layout MainLayout
 @using Student.DataModels.Models
 @using Student.DataModels
 @using Microsoft.EntityFrameworkCore
@@ -75,8 +76,8 @@
 }
 
 @code {
-    private List<StudentInfo> ?StudentInfo;
-    private List<StudentInfo> ?filteredStudents;
+    private List<StudentInfo>? StudentInfo;
+    private List<StudentInfo>? filteredStudents;
     private string? searchText;
     private bool showDeleteConfirmation = false;
     private int confirmedStudentId;

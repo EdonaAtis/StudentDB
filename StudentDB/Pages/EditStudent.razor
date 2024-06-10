@@ -1,8 +1,9 @@
 ﻿@page "/editstudent/{id:int}"
+@layout MainLayout
+
 @using Student.DataModels.Models
 @using Microsoft.EntityFrameworkCore
 @using Student.DataModels
-
 
 @inject ApplicationDbContext DbContext
 @inject NavigationManager navManager
@@ -14,6 +15,18 @@
     private StudentInfo? student;
     private bool isLoading = true;
     private string? errorMessage;
+    private List<string> fieldsOfStudy = new List<string>
+    {
+        "Computer Science",
+        "Mathematics",
+        "Physics",
+        "Chemistry",
+        "Biology",
+        "Engineering",
+        "Literature",
+        "History",
+        "IT"
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -83,7 +96,13 @@ else if (student != null)
         </div>
         <div class="form-group">
             <label>Field Of Study:</label>
-            <InputText @bind-Value="student.FieldOfStudy" class="form-control" />
+            <InputSelect @bind-Value="student.FieldOfStudy" class="form-control">
+                <option value="">Select Field of Study</option>
+                @foreach (var field in fieldsOfStudy)
+                {
+                    <option value="@field">@field</option>
+                }
+            </InputSelect>
         </div>
 
         <button type="submit" class="btn btn-primary">Save</button>

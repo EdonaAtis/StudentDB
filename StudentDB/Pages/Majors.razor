@@ -1,0 +1,130 @@
+﻿@page "/majors"
+@layout MainLayout
+@using Student.DataModels
+@using Student.DataModels.Models
+@using Microsoft.EntityFrameworkCore
+
+@inject ApplicationDbContext DbContext
+
+<h3>Majors</h3>
+
+<div class="container">
+    <div class="row">
+        <div class="col-3">
+            <div class="list-group">
+                @foreach (var field in fieldsOfStudy)
+                {
+                    <button class="list-group-item list-group-item-action" @onclick="() => ShowStudentsInField(field)">@field</button>
+                }
+            </div>
+        </div>
+        <div class="col-9">
+            @if (studentsInField != null && studentsInField.Any())
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Phone Number</th>
+                            <th>Field Of Study</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var student in studentsInField)
+                        {
+                            <tr>
+                                <td>@student.Id</td>
+                                <td>@student.FirstName</td>
+                                <td>@student.LastName</td>
+                                <td>@student.EmailAddress</td>
+                                <td>@student.PhoneNumber</td>
+                                <td>@student.FieldOfStudy</td>
+                                <td>
+                                    <a href="/editstudent/@student.Id">Edit</a> |
+                                    <button class="btn btn-danger" @onclick="() => ConfirmDeleteStudent(student.Id)">Delete</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+@if (showDeleteConfirmation)
+{
+    <div class="modal show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="close" @onclick="CancelDelete" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this student?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="() => DeleteStudent(confirmedStudentId)">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<string> fieldsOfStudy = new List<string>
+    {
+        "Computer Science",
+        "Mathematics",
+        "Physics",
+        "Chemistry",
+        "Biology",
+        "Engineering",
+        "Literature",
+        "History",
+        "Philosophy"
+    };
+
+    private List<StudentInfo> studentsInField;
+    private bool showDeleteConfirmation;
+    private int confirmedStudentId;
+
+    private async Task ShowStudentsInField(string fieldOfStudy)
+    {
+        studentsInField = await DbContext.StudentInfo
+            .Where(s => s.FieldOfStudy == fieldOfStudy)
+            .ToListAsync();
+    }
+
+    private void ConfirmDeleteStudent(int studentId)
+    {
+        confirmedStudentId = studentId;
+        showDeleteConfirmation = true;
+    }
+
+    private void CancelDelete()
+    {
+        showDeleteConfirmation = false;
+        confirmedStudentId = 0;
+    }
+
+    private async Task DeleteStudent(int studentId)
+    {
+        var student = await DbContext.StudentInfo.FindAsync(studentId);
+        if (student != null)
+        {
+            DbContext.StudentInfo.Remove(student);
+            await DbContext.SaveChangesAsync();
+            studentsInField.Remove(student);
+        }
+        showDeleteConfirmation = false;
+    }
+}
