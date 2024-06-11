@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Student.DataModels;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,8 +15,19 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DConnection")));
 
+// Add logging services
+builder.Services.AddLogging();
 
-
+// Add CORS policy (optional, configure if necessary)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -23,7 +36,20 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage(); // Detailed error pages in development
 }
+else
+{
+    app.UseExceptionHandler("/Home/Error"); // Generic error page in production
+    app.UseHsts(); // Use HSTS in production
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseCors("AllowAll"); // Enable CORS policy
 
 app.UseAuthorization();
 

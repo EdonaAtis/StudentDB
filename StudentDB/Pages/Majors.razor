@@ -44,7 +44,8 @@
                                 <td>@student.PhoneNumber</td>
                                 <td>@student.FieldOfStudy</td>
                                 <td>
-                                    <a href="/editstudent/@student.Id">Edit</a> |
+                                    <a href="@($"/studentprofile/{student.Id}")">View Courses</a> |
+                                    <a href="@($"/editstudent/{student.Id}")">Edit</a>
                                     <button class="btn btn-danger" @onclick="() => ConfirmDeleteStudent(student.Id)">Delete</button>
                                 </td>
                             </tr>

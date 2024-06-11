@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Student.DataModels;
 
@@ -10,9 +11,11 @@ using Student.DataModels;
 namespace Student.DataModels.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240611094620_AddCourses")]
+    partial class AddCourses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -68,52 +71,18 @@ namespace Student.DataModels.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("FieldOfStudy")
+                    b.Property<string>("CourseName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Courses");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            FieldOfStudy = "Computer Science",
-                            Name = "Algorithms"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            FieldOfStudy = "Computer Science",
-                            Name = "Data Structures"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            FieldOfStudy = "Mathematics",
-                            Name = "Calculus"
-                        });
-                });
-
-            modelBuilder.Entity("Student.DataModels.Models.StudentCourse", b =>
-                {
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
+                    b.HasKey("Id");
 
-                    b.HasKey("StudentId", "CourseId");
+                    b.HasIndex("StudentId");
 
-                    b.HasIndex("CourseId");
-
-                    b.ToTable("StudentCourses");
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("Student.DataModels.Models.StudentInfo", b =>
@@ -169,33 +138,20 @@ namespace Student.DataModels.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Student.DataModels.Models.StudentCourse", b =>
+            modelBuilder.Entity("Student.DataModels.Models.Course", b =>
                 {
-                    b.HasOne("Student.DataModels.Models.Course", "Course")
-                        .WithMany("StudentCourses")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Student.DataModels.Models.StudentInfo", "Student")
-                        .WithMany("StudentCourses")
+                        .WithMany("Courses")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Course");
-
                     b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("Student.DataModels.Models.Course", b =>
-                {
-                    b.Navigation("StudentCourses");
                 });
 
             modelBuilder.Entity("Student.DataModels.Models.StudentInfo", b =>
                 {
-                    b.Navigation("StudentCourses");
+                    b.Navigation("Courses");
                 });
 #pragma warning restore 612, 618
         }

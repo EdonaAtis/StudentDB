@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 
+
 <div class="sidebar">
   
 </div>
@@ -9,14 +10,13 @@
         <nav>
             <ul class="nav nav-pills">
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="/students" Match="NavLinkMatch.All">Students</NavLink>
+                    <NavLink class="nav-link" href="/majors">Majors</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/students" Match="NavLinkMatch.All">All Students</NavLink>
                 </li>
                 <li class="nav-item">
                     <NavLink class="nav-link" href="/createstudent">Create Student</NavLink>
-                </li>
-              
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="/majors">Fields of Study</NavLink>
                 </li>
             </ul>
         </nav>
@@ -26,3 +26,5 @@
         @Body
     </div>
 </div>
+
+

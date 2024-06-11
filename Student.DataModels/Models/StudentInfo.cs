@@ -18,5 +18,7 @@ namespace Student.DataModels.Models
 		public string PhoneNumber { get; set; }
 		public string FieldOfStudy { get; set; }
 
-	}
+        public ICollection<StudentCourse> StudentCourses { get; set; }
+
+    }
 }
