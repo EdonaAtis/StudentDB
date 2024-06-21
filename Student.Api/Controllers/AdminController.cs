@@ -4,6 +4,9 @@ using Student.DataModels;
 using Student.DataModels.CustomModels;
 using Student.DataModels.Models;
 using System.Linq;
+using Student.Logic.Services;
+using Microsoft.Extensions.Logging;
+
 
 namespace Student.Api.Controllers
 {
@@ -11,89 +14,38 @@ namespace Student.Api.Controllers
     [Route("api/admin")]
     public class AdminController : ControllerBase
     {
-        private readonly ApplicationDbContext _dbcontext;
+        private readonly IAdminService _adminService;
+        private readonly ILogger<AdminController> _logger;
 
-        public AdminController(ApplicationDbContext dbcontext)
+        public AdminController(IAdminService adminService, ILogger<AdminController> logger)
         {
-            _dbcontext = dbcontext;
+            _adminService = adminService;
+            _logger = logger;
         }
 
         [HttpPost("AdminLogin")]
         public IActionResult AdminLogin([FromBody] LoginModel loginModel)
         {
-            if (loginModel == null || string.IsNullOrEmpty(loginModel.EmailId) || string.IsNullOrEmpty(loginModel.Password))
-            {
-                return BadRequest("Invalid login data.");
-            }
-
             try
             {
-                var userData = _dbcontext.AdminInfos
-                    .Where(x => x.Email == loginModel.EmailId && x.Password == loginModel.Password)
-                    .FirstOrDefault();
-
-                if (userData != null)
+                _logger.LogInformation("AdminLogin called with EmailId: {EmailId}", loginModel.EmailId);
+                var response = _adminService.AdminLogin(loginModel);
+                if (response.Status)
                 {
-                    var response = new ResponseModel
-                    {
-                        Status = true,
-                        Message = $"{userData.Id}|{userData.Name}|{userData.Email}"
-                    };
-
+                    _logger.LogInformation("Login successful for EmailId: {EmailId}", loginModel.EmailId);
                     return Ok(response);
                 }
                 else
                 {
-                    return BadRequest(new ResponseModel { Status = false, Message = "Email or Password is incorrect." });
+                    _logger.LogWarning("Login failed for EmailId: {EmailId}, Reason: {Reason}", loginModel.EmailId, response.Message);
+                    return BadRequest(response);
                 }
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "An error occurred during AdminLogin for EmailId: {EmailId}", loginModel.EmailId);
                 return StatusCode(500, new ResponseModel { Status = false, Message = $"An error occurred: {ex.Message}" });
             }
         }
-
-        [HttpPost("Register")]
-        public IActionResult Register([FromBody] RegisterModel registerModel)
-        {
-            if (registerModel == null || string.IsNullOrEmpty(registerModel.EmailId) || string.IsNullOrEmpty(registerModel.Password))
-            {
-                return BadRequest("Invalid registration data.");
-            }
-
-            try
-            {
-                Console.WriteLine($"Received registration request for: {registerModel.EmailId}");
-
-                var existingUser = _dbcontext.AdminInfos.Any(x => x.Email == registerModel.EmailId);
-                if (existingUser)
-                {
-                    return BadRequest(new ResponseModel { Status = false, Message = "User already exists." });
-                }
-
-                var newUser = new AdminInfo
-                {
-                    Email = registerModel.EmailId,
-                    Password = registerModel.Password // Note: Hash the password in a real-world application
-                };
-
-                _dbcontext.AdminInfos.Add(newUser);
-                _dbcontext.SaveChanges();
-
-                var response = new ResponseModel
-                {
-                    Status = true,
-                    Message = "Registration successful!"
-                };
-
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Exception during registration: {ex.Message}");
-                return StatusCode(500, new ResponseModel { Status = false, Message = $"An error occurred: {ex.Message}" });
-            }
-        }
-
     }
 }

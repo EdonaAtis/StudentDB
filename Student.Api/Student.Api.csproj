@@ -16,5 +16,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Student.DataModels\Student.DataModels.csproj" />
     <ProjectReference Include="..\Student.Logic\Student.Logic.csproj" />
+    <ProjectReference Include="..\StudentDB\StudentDB.csproj" />
   </ItemGroup>
 </Project>

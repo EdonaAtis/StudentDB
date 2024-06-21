@@ -10,6 +10,8 @@ namespace Student.Logic.Services
 	public interface IAdminService
 	{
 		ResponseModel AdminLogin(LoginModel loginModel);
-	}
+        ResponseModel Register(RegisterModel registerModel);
+
+    }
 }
  

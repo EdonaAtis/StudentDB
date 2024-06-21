@@ -13,6 +13,7 @@ namespace StudentDB.Services
 
         public AdminPanelService(HttpClient httpClient)
         {
+            httpClient.BaseAddress = new Uri("http://localhost:5166/");
             this.httpClient = httpClient;
         }
 

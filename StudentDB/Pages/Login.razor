@@ -3,17 +3,12 @@
 @inject HttpClient HttpClient
 @inject INotify notify
 @using Blazored.SessionStorage
-@using SessionStorageService = Blazored.SessionStorage.ISessionStorageService
-@inject SessionStorageService sessionStorage
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @using Student.DataModels.CustomModels
 @using StudentDB.Services.Interfaces
-@using System.Text.Json
-@using System.Text
-@using System.Net.Http
-@using System.Net.Http.Json
 @inject IAdminPanelService adminPanelService
 @inject NavigationManager navManager
-@inject ProtectedSessionStorage sessionStorage
+
 <style>
     body {
         background-color: #E0F7FA;
@@ -85,21 +80,17 @@
     }
 </style>
 
-
 <div class="loginBox">
     <div class="box">
         <h1>Admin Panel</h1>
-        @if (loginModel != null)
-        {
-            <EditForm Model="@loginModel" OnValidSubmit="Login_Click">
-                <DataAnnotationsValidator />
-                <InputText type="email" name="email" class="email" placeholder="email" @bind-Value="loginModel.EmailId" autocomplete="off"></InputText>
-                <ValidationMessage For="@(() => loginModel.EmailId)" />
-                <InputText type="password" name="password" class="password" placeholder="password" @bind-Value="loginModel.Password" />
-                <ValidationMessage For="@(() => loginModel.Password)" />
-                <input type="submit" class="btn-primary" value="Login" />
-            </EditForm>
-        }
+        <EditForm Model="@loginModel" OnValidSubmit="Login_Click">
+            <DataAnnotationsValidator />
+            <InputText type="email" name="email" class="email" placeholder="email" @bind-Value="loginModel.EmailId" autocomplete="off"></InputText>
+            <ValidationMessage For="@(() => loginModel.EmailId)" />
+            <InputText type="password" name="password" class="password" placeholder="password" @bind-Value="loginModel.Password" />
+            <ValidationMessage For="@(() => loginModel.Password)" />
+            <input type="submit" class="btn-primary" value="Login" />
+        </EditForm>
     </div>
     <div class="alert">
         <h4>@alertMessage</h4>
@@ -108,22 +99,14 @@
 </div>
 
 @code {
-    [CascadingParameter]
-    public LoginModel? loginModel { get; set; }
+    public LoginModel loginModel { get; set; } = new LoginModel();
     public string? alertMessage { get; set; }
-    private string? successMessage;
-
-    protected override Task OnInitializedAsync()
-    {
-        loginModel = new LoginModel();
-        return base.OnInitializedAsync();
-    }
 
     private async Task Login_Click()
     {
         try
         {
-            if (loginModel == null || string.IsNullOrEmpty(loginModel.EmailId) || string.IsNullOrEmpty(loginModel.Password))
+            if (string.IsNullOrEmpty(loginModel.EmailId) || string.IsNullOrEmpty(loginModel.Password))
             {
                 alertMessage = "Please provide both email and password.";
                 return;
@@ -138,10 +121,10 @@
                     var userResponse = response.Message.Split("|");
                     if (userResponse.Length == 3)
                     {
-                        await sessionStorage.SetAsync("adminName", userResponse[1]);
-                        await sessionStorage.SetAsync("adminEmail", userResponse[2]);
-                        successMessage = "Login successful!";
-                        await InvokeAsync(() => navManager.NavigateTo("/students"));
+                        await sessionStorage.SetItemAsync("adminName", userResponse[1]);
+                        await sessionStorage.SetItemAsync("adminEmail", userResponse[2]);
+                        alertMessage = "Login successful!";
+                        navManager.NavigateTo("/students");
                     }
                     else
                     {

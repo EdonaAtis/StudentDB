@@ -1,90 +1,109 @@
 ﻿using Student.DataModels;
 using Student.DataModels.CustomModels;
+using Student.DataModels.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Student.Logic.Services
 {
     public class AdminService : IAdminService
-	{
+    {
+        private readonly ApplicationDbContext _dbcontext;
 
-		private readonly ApplicationDbContext _dbcontext;
+        public AdminService(ApplicationDbContext dbcontext)
+        {
+            _dbcontext = dbcontext;
+        }
 
-		public AdminService(ApplicationDbContext appDbcontext)
-		{
-			this._dbcontext = appDbcontext;
-		}
+        public ResponseModel AdminLogin(LoginModel loginModel)
+        {
+            var response = new ResponseModel();
 
-		public ResponseModel AdminLogin(LoginModel loginModel)
-		{
-			ResponseModel response = new ResponseModel();
+            try
+            {
+                if (loginModel == null)
+                {
+                    throw new ArgumentNullException(nameof(loginModel));
+                }
 
-			try
-			{
-				
-					if (_dbcontext == null)
-					{
-						throw new Exception("_dbcontext is null");
-					}
+                if (string.IsNullOrEmpty(loginModel.EmailId) || string.IsNullOrEmpty(loginModel.Password))
+                {
+                    response.Status = false;
+                    response.Message = "Email and Password cannot be empty";
+                    return response;
+                }
 
-					if (_dbcontext.AdminInfos == null)
-					{
-						throw new Exception("_dbcontext.AdminInfos is null");
-					}
+                var userData = _dbcontext.AdminInfos
+                    .FirstOrDefault(x => x.Email == loginModel.EmailId && x.Password == loginModel.Password);
 
-					if (loginModel == null)
-					{
-						throw new ArgumentNullException(nameof(loginModel));
-					}
+                if (userData != null)
+                {
+                    response.Status = true;
+                    response.Message = $"{userData.Id}|{userData.Name}|{userData.Email}";
+                }
+                else
+                {
+                    response.Status = false;
+                    response.Message = "Email or Password is incorrect.";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = false;
+                response.Message = $"An error occurred: {ex.Message}";
+                // Log the exception
+                Console.WriteLine($"Exception during login: {ex}");
+            }
 
-					if (string.IsNullOrEmpty(loginModel.EmailId) || string.IsNullOrEmpty(loginModel.Password))
-					{
-						response.Status = false;
-						response.Message = "Email and Password cannot be empty";
-						return response;
-					}
-
-
-					var userData = _dbcontext.AdminInfos.Where(x => x.Email == loginModel.EmailId && x.Password == loginModel.Password).FirstOrDefault();
-
-				if (userData != null)
-				{
-					if (userData.Password == loginModel.Password)
-					{
-						response.Status = true;
-						response.Message = $"{userData.Id}|{userData.Name}|{userData.Email}";
-					}
-
-					else
-					{
-						response.Status = false;
-						response.Message = "Your Password is Incorrect";
-					}
-				}
-				else
-				{
-					response.Status = false;
-					response.Message = "Email is not registered. Please check your Email Id";
-				}
-
-				return response;
-			}
-
-			catch (Exception)
-			{
-				response.Status = false;
-				response.Message = "An Error has occured. Please try again!";
-				return response;
+            return response;
+        }
 
 
+        public ResponseModel Register(RegisterModel registerModel)
+        {
+            var response = new ResponseModel();
 
+            try
+            {
+                if (registerModel == null)
+                {
+                    throw new ArgumentNullException(nameof(registerModel));
+                }
 
-			}
-		}
-	}
+                if (string.IsNullOrEmpty(registerModel.EmailId) || string.IsNullOrEmpty(registerModel.Password))
+                {
+                    response.Status = false;
+                    response.Message = "Email and Password cannot be empty";
+                    return response;
+                }
+
+                var existingUser = _dbcontext.AdminInfos.Any(x => x.Email == registerModel.EmailId);
+                if (existingUser)
+                {
+                    response.Status = false;
+                    response.Message = "User already exists.";
+                    return response;
+                }
+
+                var newUser = new AdminInfo
+                {
+                    Email = registerModel.EmailId,
+                    Password = registerModel.Password // Note: Hash the password in a real-world application
+                };
+
+                _dbcontext.AdminInfos.Add(newUser);
+                _dbcontext.SaveChanges();
+
+                response.Status = true;
+                response.Message = "Registration successful!";
+            }
+            catch (Exception ex)
+            {
+                response.Status = false;
+                response.Message = $"An error occurred: {ex.Message}";
+            }
+
+            return response;
+        }
+    }
 }
-
