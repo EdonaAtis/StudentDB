@@ -3,8 +3,12 @@
 @using Student.DataModels
 @using Student.DataModels.Models
 @using Microsoft.EntityFrameworkCore
-
+@using Blazored.SessionStorage;
 @inject ApplicationDbContext DbContext
+@inject NavigationManager navManager
+@inject ISessionStorageService sessionStorage
+@inherits StudentDB.Pages.MajorsBase
+
 
 <h3>Majors</h3>
 
@@ -19,6 +23,29 @@
             </div>
         </div>
         <div class="col-9">
+            @if (isLoggedIn)
+            {
+                <p><strong>Logged in as:</strong> @adminName</p>
+                <p><strong>Roles:</strong> @string.Join(", ", userRoles)</p>
+
+                @if (isSuperAdmin)
+                {
+                    <p><strong>You are logged in as a SuperAdmin!</strong></p>
+                    <div>
+                        <a class="btn btn-primary" href="/createcourse">Create Course</a>
+                    </div>
+                    
+                }
+                else
+                {
+                    <p>You are logged in, but not as a SuperAdmin.</p>
+                }
+            }
+            else
+            {
+                <p>You are not logged in.</p>
+            }
+
             @if (studentsInField != null && studentsInField.Any())
             {
                 <table class="table">
@@ -81,51 +108,28 @@
 }
 
 @code {
-    private List<string> fieldsOfStudy = new List<string>
-    {
-        "Computer Science",
-        "Mathematics",
-        "Physics",
-        "Chemistry",
-        "Biology",
-        "Engineering",
-        "Literature",
-        "History",
-        "Philosophy"
-    };
+    private List<string> userRoles = new List<string>();
+    private bool isSuperAdmin = false;
+    private bool isLoggedIn = false;
+    private string adminName = string.Empty;
 
-    private List<StudentInfo> studentsInField;
-    private bool showDeleteConfirmation;
-    private int confirmedStudentId;
-
-    private async Task ShowStudentsInField(string fieldOfStudy)
+    protected override async Task OnInitializedAsync()
     {
-        studentsInField = await DbContext.StudentInfo
-            .Where(s => s.FieldOfStudy == fieldOfStudy)
-            .ToListAsync();
-    }
+        // Retrieve roles and name from session storage
+        var rolesString = await sessionStorage.GetItemAsync<string>("adminRoles");
+        adminName = await sessionStorage.GetItemAsync<string>("adminName");
 
-    private void ConfirmDeleteStudent(int studentId)
-    {
-        confirmedStudentId = studentId;
-        showDeleteConfirmation = true;
-    }
-
-    private void CancelDelete()
-    {
-        showDeleteConfirmation = false;
-        confirmedStudentId = 0;
-    }
-
-    private async Task DeleteStudent(int studentId)
-    {
-        var student = await DbContext.StudentInfo.FindAsync(studentId);
-        if (student != null)
+        if (!string.IsNullOrEmpty(rolesString))
         {
-            DbContext.StudentInfo.Remove(student);
-            await DbContext.SaveChangesAsync();
-            studentsInField.Remove(student);
+            userRoles = rolesString.Split(',').ToList();
+            isSuperAdmin = userRoles.Any(role => string.Equals(role, "SuperAdmin", StringComparison.OrdinalIgnoreCase));
+            isLoggedIn = true;
         }
-        showDeleteConfirmation = false;
+
+        // Debugging output
+        Console.WriteLine("User is authenticated: " + isLoggedIn);
+        Console.WriteLine("User roles: " + string.Join(", ", userRoles));
     }
+
+ 
 }

@@ -2,9 +2,9 @@
 @layout MainLayout
 @using Student.DataModels.Models
 @using Student.DataModels
-@using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext DbContext
 @inject NavigationManager NavManager
+@inherits StudentDB.Pages.StudentsBase
 
 <div>
     <input type="text" @bind="searchText" placeholder="Search..." class="form-control" />
@@ -45,7 +45,6 @@
                         <a href="@($"/editstudent/{student.Id}")">Edit</a>
                         <button class="btn btn-danger" @onclick="() => ConfirmDeleteStudent(student.Id)">Delete</button>
                     </td>
-
                 </tr>
             }
         }
@@ -75,65 +74,4 @@
             </div>
         </div>
     </div>
-}
-
-@code {
-    private List<StudentInfo>? StudentInfo;
-    private List<StudentInfo>? filteredStudents;
-    private string? searchText;
-    private bool showDeleteConfirmation = false;
-    private int confirmedStudentId;
-
-    protected override async Task OnInitializedAsync()
-    {
-        StudentInfo = await DbContext.StudentInfo.ToListAsync();
-        filteredStudents = new List<StudentInfo>(StudentInfo);
-    }
-
-    private void Search()
-    {
-        filteredStudents = StudentInfo.Where(s =>
-            s.FirstName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-            s.LastName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-            s.EmailAddress.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-            s.PhoneNumber.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
-            s.FieldOfStudy.Contains(searchText, StringComparison.OrdinalIgnoreCase)
-        ).ToList();
-    }
-
-    private void Reset()
-    {
-        searchText = string.Empty;
-        filteredStudents = new List<StudentInfo>(StudentInfo);
-    }
-
-    private void GoToCreateStudentPage()
-    {
-        NavManager.NavigateTo("/createstudent");
-    }
-
-    private void ConfirmDeleteStudent(int id)
-    {
-        confirmedStudentId = id;
-        showDeleteConfirmation = true;
-    }
-
-    private void CancelDelete()
-    {
-        confirmedStudentId = 0;
-        showDeleteConfirmation = false;
-    }
-
-    private async Task DeleteStudent(int id)
-    {
-        showDeleteConfirmation = false;
-        var student = await DbContext.StudentInfo.FindAsync(id);
-        if (student != null)
-        {
-            DbContext.StudentInfo.Remove(student);
-            await DbContext.SaveChangesAsync();
-            StudentInfo = await DbContext.StudentInfo.ToListAsync();
-            filteredStudents = new List<StudentInfo>(StudentInfo);
-        }
-    }
 }

@@ -2,94 +2,9 @@
 @layout MainLayout
 @using Student.DataModels.Models
 @using Student.DataModels
-@using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext DbContext
 @inject NavigationManager NavManager
-
-@code {
-    [Parameter] public int id { get; set; }
-    private StudentInfo student;
-    private List<Course> allCourses = new List<Course>();
-    private List<Course> enrolledCourses = new List<Course>();
-    private List<Course> availableCourses = new List<Course>();
-    private bool isLoading = true;
-    private string errorMessage;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            student = await DbContext.StudentInfo
-                .Include(s => s.StudentCourses)
-                .ThenInclude(sc => sc.Course)
-                .FirstOrDefaultAsync(s => s.Id == id);
-
-            if (student != null)
-            {
-                allCourses = await DbContext.Courses
-                    .Where(c => c.FieldOfStudy == student.FieldOfStudy)
-                    .ToListAsync();
-
-                enrolledCourses = student.StudentCourses.Select(sc => sc.Course).ToList();
-                availableCourses = allCourses.Except(enrolledCourses).ToList();
-            }
-            else
-            {
-                errorMessage = "Student not found.";
-            }
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Error loading student profile: {ex.Message}";
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-
-    private async Task EnrollInCourse(int courseId)
-    {
-        var studentCourse = new StudentCourse
-            {
-                StudentId = student.Id,
-                CourseId = courseId
-            };
-
-        DbContext.StudentCourses.Add(studentCourse);
-        await DbContext.SaveChangesAsync();
-
-        await LoadStudentCourses();
-    }
-
-    private async Task RemoveFromCourse(int courseId)
-    {
-        var studentCourse = await DbContext.StudentCourses
-            .FirstOrDefaultAsync(sc => sc.StudentId == student.Id && sc.CourseId == courseId);
-
-        if (studentCourse != null)
-        {
-            DbContext.StudentCourses.Remove(studentCourse);
-            await DbContext.SaveChangesAsync();
-
-            await LoadStudentCourses();
-        }
-    }
-
-    private async Task LoadStudentCourses()
-    {
-        student = await DbContext.StudentInfo
-            .Include(s => s.StudentCourses)
-            .ThenInclude(sc => sc.Course)
-            .FirstOrDefaultAsync(s => s.Id == student.Id);
-
-        if (student != null)
-        {
-            enrolledCourses = student.StudentCourses.Select(sc => sc.Course).ToList();
-            availableCourses = allCourses.Except(enrolledCourses).ToList();
-        }
-    }
-}
+@inherits StudentDB.Pages.StudentProfileBase
 
 <div>
     <h3>Student Profile: @student?.FirstName @student?.LastName</h3>

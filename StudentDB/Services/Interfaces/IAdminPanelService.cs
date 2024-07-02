@@ -6,5 +6,7 @@ namespace StudentDB.Services.Interfaces
     {
         Task<ResponseModel> AdminLogin(LoginModel loginModel);
         Task<ResponseModel> AdminRegister(RegisterModel registerModel);
+
+
     }
 }

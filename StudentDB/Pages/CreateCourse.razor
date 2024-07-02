@@ -1,0 +1,29 @@
+﻿@page "/createcourse"
+@layout MainLayout
+@using Student.DataModels
+@using Student.DataModels.Models
+@using Microsoft.EntityFrameworkCore
+
+@inject ApplicationDbContext DbContext
+@inject NavigationManager navManager
+@inherits StudentDB.Pages.CreateCourseBase
+
+<h3>Create Course</h3>
+
+<EditForm Model="course" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>Course Name:</label>
+        <InputText @bind-Value="course.Name" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Field Of Study:</label>
+        <InputText @bind-Value="course.FieldOfStudy" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn-primary">Save</button>
+</EditForm>
+
+

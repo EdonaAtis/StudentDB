@@ -12,11 +12,11 @@ namespace Student.DataModels.CustomModels
         
 
         [Required(ErrorMessage = "*EmailId is Required")]
-        public string? EmailId { get; set; }
+        public string EmailId { get; set; }
 
         [Required(ErrorMessage = "*Password is Required")]
 
-        public string? Password { get; set; }    
+        public string Password { get; set; }    
 
 
     }

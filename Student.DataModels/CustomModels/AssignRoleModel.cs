@@ -6,14 +6,10 @@ using System.Threading.Tasks;
 
 namespace Student.DataModels.CustomModels
 {
-   
-        public class RegisterModel
-        {
-            public string EmailId { get; set; }
-            public string Password { get; set; }
-
-
+    public class AssignRoleModel
+    {
+        public string UserId { get; set; }
+        public string Role { get; set; }
     }
-
-    
 }
+

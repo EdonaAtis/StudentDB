@@ -6,6 +6,7 @@
 
 @inject ApplicationDbContext DbContext
 @inject NavigationManager navManager
+@inherits StudentDB.Pages.CreateStudentBase
 
 <h3>Create Student</h3>
 
@@ -42,26 +43,3 @@
 
     <button type="submit" class="btn-primary">Save</button>
 </EditForm>
-
-@code {
-    private StudentInfo student = new StudentInfo();
-    private List<string> fieldsOfStudy = new List<string>
-    {
-        "Computer Science",
-        "Mathematics",
-        "Physics",
-        "Chemistry",
-        "Biology",
-        "Engineering",
-        "Literature",
-        "History",
-        "IT"
-    };
-
-    private async Task HandleValidSubmit()
-    {
-        DbContext.StudentInfo.Add(student);
-        await DbContext.SaveChangesAsync();
-        navManager.NavigateTo("/students");
-    }
-}

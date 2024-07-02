@@ -1,5 +1,4 @@
 ﻿@page "/login"
-
 @inject HttpClient HttpClient
 @inject INotify notify
 @using Blazored.SessionStorage
@@ -8,6 +7,7 @@
 @using StudentDB.Services.Interfaces
 @inject IAdminPanelService adminPanelService
 @inject NavigationManager navManager
+@inherits StudentDB.Pages.LoginBase
 
 <style>
     body {
@@ -83,71 +83,17 @@
 <div class="loginBox">
     <div class="box">
         <h1>Admin Panel</h1>
-        <EditForm Model="@loginModel" OnValidSubmit="Login_Click">
+        <EditForm Model="@LoginModel" OnValidSubmit="Login_Click">
             <DataAnnotationsValidator />
-            <InputText type="email" name="email" class="email" placeholder="email" @bind-Value="loginModel.EmailId" autocomplete="off"></InputText>
-            <ValidationMessage For="@(() => loginModel.EmailId)" />
-            <InputText type="password" name="password" class="password" placeholder="password" @bind-Value="loginModel.Password" />
-            <ValidationMessage For="@(() => loginModel.Password)" />
+            <InputText type="email" class="email" @bind-Value="LoginModel.EmailId" placeholder="Email" autocomplete="email" />
+            <ValidationMessage For="@(() => LoginModel.EmailId)" />
+            <InputText type="password" class="password" @bind-Value="LoginModel.Password" placeholder="Password" autocomplete="current-password" />
+            <ValidationMessage For="@(() => LoginModel.Password)" />
             <input type="submit" class="btn-primary" value="Login" />
         </EditForm>
     </div>
     <div class="alert">
-        <h4>@alertMessage</h4>
+        <h4>@AlertMessage</h4>
     </div>
     <p>Don't have an account? <a href="/register">Register here</a></p>
 </div>
-
-@code {
-    public LoginModel loginModel { get; set; } = new LoginModel();
-    public string? alertMessage { get; set; }
-
-    private async Task Login_Click()
-    {
-        try
-        {
-            if (string.IsNullOrEmpty(loginModel.EmailId) || string.IsNullOrEmpty(loginModel.Password))
-            {
-                alertMessage = "Please provide both email and password.";
-                return;
-            }
-
-            var response = await adminPanelService.AdminLogin(loginModel);
-
-            if (response.Status)
-            {
-                if (!string.IsNullOrEmpty(response.Message))
-                {
-                    var userResponse = response.Message.Split("|");
-                    if (userResponse.Length == 3)
-                    {
-                        await sessionStorage.SetItemAsync("adminName", userResponse[1]);
-                        await sessionStorage.SetItemAsync("adminEmail", userResponse[2]);
-                        alertMessage = "Login successful!";
-                        navManager.NavigateTo("/students");
-                    }
-                    else
-                    {
-                        alertMessage = "Invalid response format.";
-                        Console.WriteLine($"Invalid response format: {response.Message}");
-                    }
-                }
-                else
-                {
-                    alertMessage = "Login response is empty.";
-                    Console.WriteLine("Login response is empty.");
-                }
-            }
-            else
-            {
-                alertMessage = response.Message;
-                Console.WriteLine($"Login failed: {response.Message}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Exception during login: {ex.Message}");
-            alertMessage = "An unexpected error occurred during login.";
-        }
-    }
-}

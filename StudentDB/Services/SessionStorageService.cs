@@ -1,11 +1,10 @@
 ﻿using Blazored.SessionStorage;
 using StudentDB.Services.Interfaces;
 using System.Threading.Tasks;
-using ISessionStorageService = StudentDB.Services.Interfaces.ISessionStorageService;
 
 namespace StudentDB.Services
 {
-    public class SessionStorageService : ISessionStorageService
+    public class SessionStorageService 
 	{
 		private readonly ISessionStorageService _sessionStorageService;
 
@@ -16,12 +15,12 @@ namespace StudentDB.Services
 
 		public async Task SetAsync<T>(string key, T value)
 		{
-			await _sessionStorageService.SetAsync(key, value);
+			await _sessionStorageService.SetItemAsync(key, value);
 		}
 
 		public async Task<T> GetAsync<T>(string key)
 		{
-			return await _sessionStorageService.GetAsync<T>(key);
+			return await _sessionStorageService.GetItemAsync<T>(key);
 		}
 	}
 }

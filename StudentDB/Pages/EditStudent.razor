@@ -7,60 +7,7 @@
 
 @inject ApplicationDbContext DbContext
 @inject NavigationManager navManager
-
-@code {
-    [Parameter]
-    public int id { get; set; }
-
-    private StudentInfo? student;
-    private bool isLoading = true;
-    private string? errorMessage;
-    private List<string> fieldsOfStudy = new List<string>
-    {
-        "Computer Science",
-        "Mathematics",
-        "Physics",
-        "Chemistry",
-        "Biology",
-        "Engineering",
-        "Literature",
-        "History",
-        "IT"
-    };
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            student = await DbContext.StudentInfo.FindAsync(id);
-            if (student == null)
-            {
-                errorMessage = "Student not found.";
-            }
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Error loading student: {ex.Message}";
-        }
-        finally
-        {
-            isLoading = false;
-        }
-    }
-
-    private async Task HandleValidSubmit()
-    {
-        try
-        {
-            await DbContext.SaveChangesAsync();
-            navManager.NavigateTo("/students");
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Error saving changes: {ex.Message}";
-        }
-    }
-}
+@inherits StudentDB.Pages.EditStudentBase
 
 <h3>Edit Student</h3>
 

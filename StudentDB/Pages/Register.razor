@@ -1,55 +1,20 @@
 ﻿@page "/register"
 
 @using Student.DataModels.CustomModels
-@using StudentDB.Services;
+@using StudentDB.Services
 @using StudentDB.Services.Interfaces
 @inject IAdminPanelService adminPanelService
 @inject NavigationManager navManager
+@inherits StudentDB.Pages.RegisterBase
 
 <EditForm Model="@registerModel" OnValidSubmit="Register_Click">
     <DataAnnotationsValidator />
-    <InputText type="email" id="email" class="form-control" placeholder="Email" @bind-Value="registerModel.EmailId" />
+    <InputText type="email" id="email" class="form-control" placeholder="Email" @bind-Value="registerModel.EmailId" autocomplete="email" />
     <ValidationMessage For="@(() => registerModel.EmailId)" />
-    <InputText type="password" id="password" class="form-control" placeholder="Password" @bind-Value="registerModel.Password" />
+    <InputText type="password" id="password" class="form-control" placeholder="Password" @bind-Value="registerModel.Password" autocomplete="new-password" />
     <ValidationMessage For="@(() => registerModel.Password)" />
     <br />
     <button type="submit" class="btn btn-primary">Register</button>
 </EditForm>
 
 <p class="alert">@alertMessage</p>
-
-@code {
-    private RegisterModel registerModel = new RegisterModel();
-    private string? alertMessage;
-
-    private async Task Register_Click()
-    {
-        if (registerModel == null || string.IsNullOrEmpty(registerModel.EmailId) || string.IsNullOrEmpty(registerModel.Password))
-        {
-            alertMessage = "Please provide all required fields.";
-            return;
-        }
-
-        try
-        {
-            Console.WriteLine($"Registering user: {registerModel.EmailId}");
-            var response = await adminPanelService.AdminRegister(registerModel);
-
-            if (response.Status)
-            {
-                alertMessage = "Registration successful!";
-                navManager.NavigateTo("/login");
-            }
-            else
-            {
-                alertMessage = response.Message;
-                Console.WriteLine($"Registration failed: {response.Message}");
-            }
-        }
-        catch (Exception ex)
-        {
-            alertMessage = $"An error occurred: {ex.Message}";
-            Console.WriteLine($"Exception: {ex.Message}");
-        }
-    }
-}
