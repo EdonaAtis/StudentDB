@@ -12,15 +12,24 @@ namespace StudentDB.Pages
         protected Course course = new Course();
 
         [Inject]
-        protected ApplicationDbContext DbContext { get; set; }
+        protected HttpClient HttpClient { get; set; }
+
         [Inject]
         protected NavigationManager navManager { get; set; }
 
         protected async Task HandleValidSubmit()
         {
-            DbContext.Courses.Add(course);
-            await DbContext.SaveChangesAsync();
-            navManager.NavigateTo("/courses");
+            var response = await HttpClient.PostAsJsonAsync("api/admin/course", course);
+
+            if (response.IsSuccessStatusCode)
+            {
+                navManager.NavigateTo("/courses");
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error: {errorMessage}");
+            }
         }
     }
 }
