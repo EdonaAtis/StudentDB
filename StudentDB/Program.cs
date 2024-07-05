@@ -19,6 +19,15 @@ public class Program
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DConnection")));
 
+        builder.Services.AddScoped<HttpClient>(s =>
+        {
+            var client = new HttpClient();
+            client.BaseAddress = new Uri("http://localhost:5166/");
+            return client;
+        });
+
+
+
         // Add Identity services
         builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<ApplicationDbContext>()

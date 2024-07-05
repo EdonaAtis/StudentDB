@@ -1,0 +1,71 @@
+﻿@page "/courses"
+@layout MainLayout
+@using Student.DataModels.Models
+@using Student.DataModels
+@inject ApplicationDbContext DbContext
+@inject NavigationManager NavManager
+@inherits StudentDB.Pages.CoursesBase
+
+<div>
+    <input type="text" @bind="searchText" placeholder="Search..." class="form-control" />
+</div>
+<div style="margin-top: 10px;">
+    <button class="btn btn-primary" @onclick="Search">Search</button>
+</div>
+<div style="margin-top: 10px;">
+    <button class="btn btn-primary" @onclick="Reset">Reset</button>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Field Of Study</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (filteredCourses != null)
+        {
+            @foreach (var course in filteredCourses)
+            {
+                <tr>
+                    <td>@course.Id</td>
+                    <td>@course.Name</td>
+                    <td>@course.FieldOfStudy</td>
+                    <td>
+                        <a href="@($"/courseprofile/{course.Id}")">View Students</a> |
+                        <a href="@($"/editcourse/{course.Id}")">Edit</a>
+                        <button class="btn btn-danger" @onclick="() => ConfirmDeleteCourse(course.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<button class="btn btn-primary" @onclick="GoToCreateCoursePage">Add Course</button>
+
+@if (showDeleteConfirmation)
+{
+    <div class="modal show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="close" @onclick="CancelDelete" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this course?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CancelDelete">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="() => DeleteCourse(confirmedCourseId)">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

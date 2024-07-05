@@ -42,7 +42,7 @@ namespace StudentDB.Pages
                         {
                             await SessionStorage.SetItemAsync("adminName", userResponse[1]);
                             await SessionStorage.SetItemAsync("adminEmail", userResponse[2]);
-                            await SessionStorage.SetItemAsync("adminRoles", userResponse[3]);
+                            await SessionStorage.SetItemAsync("adminRoles", userResponse[1]);
                             AlertMessage = "Login successful!";
                             NavManager.NavigateTo("/students");
                         }

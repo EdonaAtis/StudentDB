@@ -20,10 +20,17 @@
     </div>
     <div class="form-group">
         <label>Field Of Study:</label>
-        <InputText @bind-Value="course.FieldOfStudy" class="form-control" />
+        <InputSelect @bind-Value="course.FieldOfStudy" class="form-control">
+            <option value="">Select Field of Study</option>
+            @foreach (var field in fieldsOfStudy)
+            {
+                <option value="@field">@field</option>
+            }
+        </InputSelect>
     </div>
 
     <button type="submit" class="btn-primary">Save</button>
 </EditForm>
+
 
 

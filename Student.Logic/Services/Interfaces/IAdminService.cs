@@ -8,9 +8,11 @@ namespace Student.Logic.Services.Interfaces
     {
         Task<ResponseModel> AdminLogin(LoginModel loginModel);
         Task<ResponseModel> Register(RegisterModel registerModel);
-        Task<ResponseModel> CreateCourse(Course course);
-        Task<ResponseModel> UpdateCourse(Course course);
-        Task<ResponseModel> DeleteCourse(int courseId);
+        Task<ServiceResponse> CreateCourse(Course course);
+
+        Task<ServiceResponse<List<Course>>> GetCourses();
+        Task<ServiceResponse<List<Course>>> SearchCourses(string searchText);
+        Task<ServiceResponse> DeleteCourse(int courseId);
         Task<ResponseModel> AssignRoleToUser(string userId, string role);
 
     }

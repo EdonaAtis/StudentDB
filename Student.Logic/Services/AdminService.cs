@@ -19,8 +19,8 @@ namespace Student.Logic.Services
 
         public AdminService(ApplicationDbContext dbContext, ILogger<AdminService> logger)
         {
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _dbContext = dbContext;
+            _logger = logger;
         }
 
         public async Task<ResponseModel> AdminLogin(LoginModel loginModel)
@@ -121,120 +121,63 @@ namespace Student.Logic.Services
             return response;
         }
 
-        public async Task<ResponseModel> CreateCourse(Course course)
+
+        public async Task<ServiceResponse> CreateCourse(Course course)
         {
-            var response = new ResponseModel();
+            var response = new ServiceResponse();
 
             try
             {
-                if (course == null)
-                {
-                    throw new ArgumentNullException(nameof(course));
-                }
-
-                _logger.LogInformation("Attempting to create course: {CourseName}", course.Name);
-
-                var existingCourse = await _dbContext.Courses.AnyAsync(c => c.Name == course.Name && c.FieldOfStudy == course.FieldOfStudy);
-                if (existingCourse)
-                {
-                    _logger.LogWarning("Course creation failed - Course already exists: {CourseName}", course.Name);
-                    response.Status = false;
-                    response.Message = "Course already exists.";
-                    return response;
-                }
-
-                await _dbContext.Courses.AddAsync(course);
+                _dbContext.Courses.Add(course);
                 await _dbContext.SaveChangesAsync();
-
-                _logger.LogInformation("Course created successfully: {CourseName}", course.Name);
                 response.Status = true;
-                response.Message = "Course created successfully!";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred during course creation for CourseName: {CourseName}", course.Name);
                 response.Status = false;
-                response.Message = $"An error occurred: {ex.Message}";
+                response.Message = $"Failed to create course: {ex.Message}";
+                _logger.LogError(response.Message);
             }
 
             return response;
         }
 
-        public async Task<ResponseModel> UpdateCourse(Course course)
+        public async Task<ServiceResponse<List<Course>>> GetCourses()
         {
-            var response = new ResponseModel();
-
-            try
-            {
-                if (course == null)
-                {
-                    throw new ArgumentNullException(nameof(course));
-                }
-
-                _logger.LogInformation("Attempting to update course: {CourseId}", course.Id);
-
-                var existingCourse = await _dbContext.Courses.FirstOrDefaultAsync(c => c.Id == course.Id);
-                if (existingCourse == null)
-                {
-                    _logger.LogWarning("Course update failed - Course not found: {CourseId}", course.Id);
-                    response.Status = false;
-                    response.Message = "Course not found.";
-                    return response;
-                }
-
-                existingCourse.Name = course.Name;
-                existingCourse.FieldOfStudy = course.FieldOfStudy;
-
-                _dbContext.Courses.Update(existingCourse);
-                await _dbContext.SaveChangesAsync();
-
-                _logger.LogInformation("Course updated successfully: {CourseId}", course.Id);
-                response.Status = true;
-                response.Message = "Course updated successfully!";
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred during course update for CourseId: {CourseId}", course.Id);
-                response.Status = false;
-                response.Message = $"An error occurred: {ex.Message}";
-            }
-
+            var response = new ServiceResponse<List<Course>>();
+            response.Data = await _dbContext.Courses.ToListAsync();
+            response.Status = true;
             return response;
         }
 
-        public async Task<ResponseModel> DeleteCourse(int id)
+        public async Task<ServiceResponse<List<Course>>> SearchCourses(string searchText)
         {
-            var response = new ResponseModel();
-
-            try
-            {
-                _logger.LogInformation("Attempting to delete course: {CourseId}", id);
-
-                var existingCourse = await _dbContext.Courses.FirstOrDefaultAsync(c => c.Id == id);
-                if (existingCourse == null)
-                {
-                    _logger.LogWarning("Course deletion failed - Course not found: {CourseId}", id);
-                    response.Status = false;
-                    response.Message = "Course not found.";
-                    return response;
-                }
-
-                _dbContext.Courses.Remove(existingCourse);
-                await _dbContext.SaveChangesAsync();
-
-                _logger.LogInformation("Course deleted successfully: {CourseId}", id);
-                response.Status = true;
-                response.Message = "Course deleted successfully!";
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred during course deletion for CourseId: {CourseId}", id);
-                response.Status = false;
-                response.Message = $"An error occurred: {ex.Message}";
-            }
-
+            var response = new ServiceResponse<List<Course>>();
+            response.Data = await _dbContext.Courses
+                .Where(c => c.Name.Contains(searchText) || c.FieldOfStudy.Contains(searchText))
+                .ToListAsync();
+            response.Status = true;
             return response;
         }
+
+        public async Task<ServiceResponse> DeleteCourse(int courseId)
+        {
+            var response = new ServiceResponse();
+            var course = await _dbContext.Courses.FindAsync(courseId);
+            if (course != null)
+            {
+                _dbContext.Courses.Remove(course);
+                await _dbContext.SaveChangesAsync();
+                response.Status = true;
+            }
+            else
+            {
+                response.Status = false;
+                response.Message = "Course not found";
+            }
+            return response;
+        }
+
 
         public async Task<ResponseModel> AssignRoleToUser(string userId, string role)
         {
@@ -275,4 +218,5 @@ namespace Student.Logic.Services
         }
     }
 }
+
 

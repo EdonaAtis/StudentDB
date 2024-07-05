@@ -16,6 +16,8 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Microsoft.Exchange.WebServices" Version="2.2.0" />
+		<PackageReference Include="WireMock.Net.Abstractions" Version="1.5.59" />
 	</ItemGroup>
 
 </Project>

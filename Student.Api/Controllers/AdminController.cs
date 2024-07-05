@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Student.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/admin")]
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
@@ -46,18 +46,45 @@ namespace Student.Api.Controllers
         [HttpPost("CreateCourse")]
         public async Task<IActionResult> CreateCourse([FromBody] Course course)
         {
-            var response = await _adminService.CreateCourse(course);
-            if (response.Status)
+            try
             {
-                return Ok(response);
+                var response = await _adminService.CreateCourse(course);
+                if (response.Status)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    _logger.LogError($"Failed to create course: {response.Message}");
+                    return BadRequest(response);
+                }
             }
-            return BadRequest(response);
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception occurred while creating course: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+    
+
+    [HttpGet("GetCourses")]
+        public async Task<IActionResult> GetCourses()
+        {
+            var response = await _adminService.GetCourses();
+            return Ok(response);
         }
 
-        [HttpPut("UpdateCourse")]
-        public async Task<IActionResult> UpdateCourse([FromBody] Course course)
+        [HttpGet("SearchCourses")]
+        public async Task<IActionResult> SearchCourses([FromQuery] string searchText)
         {
-            var response = await _adminService.UpdateCourse(course);
+            var response = await _adminService.SearchCourses(searchText);
+            return Ok(response);
+        }
+
+        [HttpDelete("DeleteCourse/{courseId}")]
+        public async Task<IActionResult> DeleteCourse(int courseId)
+        {
+            var response = await _adminService.DeleteCourse(courseId);
             if (response.Status)
             {
                 return Ok(response);
